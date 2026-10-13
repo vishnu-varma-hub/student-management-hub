@@ -1,0 +1,46 @@
+{
+  "students": [
+    {
+      "firstName": "Ava",
+      "lastName": "Patel",
+      "email": "ava.patel@example.com",
+      "courseIds": [
+        "c1"
+      ],
+      "id": "s1"
+    },
+    {
+      "firstName": "Noah",
+      "lastName": "Williams",
+      "email": "noah.williams@example.com",
+      "courseIds": [
+        "c1"
+      ],
+      "id": "s2"
+    },
+    {
+      "firstName": "Mia",
+      "lastName": "Chen",
+      "email": "mia.chen@example.com",
+      "courseIds": [
+        "c1"
+      ],
+      "id": "s3"
+    }
+  ],
+  "courses": [
+    {
+      "name": "Introduction to Programming",
+      "code": "CS101",
+      "description": "Foundations of software development new",
+      "id": "c1"
+    },
+    {
+      "id": "c3",
+      "name": "Web Development",
+      "code": "CS310",
+      "description": "Modern web application fundamentals"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
