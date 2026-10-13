@@ -1,0 +1,139 @@
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2>
+        Students
+        <span class="count">
+          {{ store.count() }}
+        </span>
+      </h2>
+      <p>Maintain student profiles and enrollments.</p>
+    </div>
+    <button type="button" (click)="openNew()">+ Add student</button>
+  </div>
+  <div class="toolbar">
+    <input
+      aria-label="Search students"
+      placeholder="Search by name or email..."
+      [value]="search()"
+      (input)="search.set($any($event.target).value)"
+    />
+  </div>
+  @if (store.loading()) {
+    <p class="status">Loading students...</p>
+  } @else if (filtered().length === 0) {
+    <app-empty-state title="No students found" description="Add a student or change your search." />
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Enrolled courses</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of filtered(); track s.id) {
+            <tr>
+              <td>
+                <strong> {{ s.firstName }} {{ s.lastName }} </strong>
+              </td>
+              <td>
+                {{ s.email }}
+              </td>
+              <td>
+                {{ courseNames(s) }}
+              </td>
+              <td class="actions-cell">
+                <button type="button" class="link" (click)="edit(s)">Edit</button>
+                <button type="button" class="link danger-text" (click)="toDelete.set(s)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+@if (showForm()) {
+  <div class="overlay" role="presentation">
+    <section
+      class="dialog form-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="student-form-title"
+    >
+      <h2 id="student-form-title">
+        {{ editingId() ? 'Edit student' : 'Add student' }}
+      </h2>
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="form-grid">
+          <label>
+            First name
+            <input formControlName="firstName" maxlength="60" />
+            @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+              <small> First name is required. </small>
+            }
+          </label>
+          <label>
+            Last name
+            <input formControlName="lastName" maxlength="60" />
+            @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+              <small> Last name is required. </small>
+            }
+          </label>
+        </div>
+        <label>
+          Email
+          <input type="email" formControlName="email" />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <small> Enter a valid email address. </small>
+          }
+        </label>
+        <fieldset>
+          <legend>Courses (select multiple)</legend>
+          <div class="course-options">
+            @for (c of courses.items(); track c.id) {
+              <label class="check">
+                <input
+                  type="checkbox"
+                  [checked]="selectedCourses().includes(c.id)"
+                  (change)="toggleCourse(c.id, $any($event.target).checked)"
+                />
+                {{ c.name }}
+              </label>
+            } @empty {
+              <p>No courses yet. Create courses in the Courses tab.</p>
+            }
+          </div>
+        </fieldset>
+        <div class="actions">
+          <button type="button" class="secondary" (click)="requestClose()">Cancel</button>
+          <button type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving...' : 'Save student' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+@if (toDelete(); as student) {
+  <app-confirm-dialog
+    title="Delete student?"
+    [message]="'Delete ' + student.firstName + ' ' + student.lastName + '? This cannot be undone.'"
+    (cancel)="toDelete.set(null)"
+    (confirm)="deleteStudent(student)"
+  />
+}
+@if (confirmClose()) {
+  <app-confirm-dialog
+    title="Discard changes?"
+    message="Your unsaved student changes will be lost."
+    (cancel)="confirmClose.set(false)"
+    (confirm)="closeForm()"
+  />
+}

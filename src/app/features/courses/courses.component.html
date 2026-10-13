@@ -1,0 +1,125 @@
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2>
+        Courses
+        <span class="count">
+          {{ store.count() }}
+        </span>
+      </h2>
+      <p>Organize your course catalog.</p>
+    </div>
+    <button type="button" (click)="openNew()">+ Add course</button>
+  </div>
+  <div class="toolbar">
+    <input
+      aria-label="Search courses"
+      placeholder="Search courses..."
+      [value]="search()"
+      (input)="search.set($any($event.target).value)"
+    />
+  </div>
+  @if (store.loading()) {
+    <p class="status">Loading courses...</p>
+  } @else if (filtered().length === 0) {
+    <app-empty-state title="No courses found" description="Add a course or change your search." />
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Course</th>
+            <th>Description</th>
+            <th>Students</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of filtered(); track c.id) {
+            <tr>
+              <td>
+                <span class="pill">
+                  {{ c.code }}
+                </span>
+              </td>
+              <td>
+                <strong>
+                  {{ c.name }}
+                </strong>
+              </td>
+              <td>
+                {{ c.description }}
+              </td>
+              <td>
+                {{ enrollmentCount(c.id) }}
+              </td>
+              <td class="actions-cell">
+                <button type="button" class="link" (click)="edit(c)">Edit</button>
+                <button type="button" class="link danger-text" (click)="toDelete.set(c)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+@if (showForm()) {
+  <div class="overlay" role="presentation">
+    <section
+      class="dialog form-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="course-form-title"
+    >
+      <h2 id="course-form-title">
+        {{ editingId() ? 'Edit course' : 'Add course' }}
+      </h2>
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <label>
+          Course name
+          <input formControlName="name" maxlength="100" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <small> Course name is required. </small>
+          }
+        </label>
+        <label>
+          Course code
+          <input formControlName="code" maxlength="20" />
+          @if (form.controls.code.touched && form.controls.code.invalid) {
+            <small> Course code is required. </small>
+          }
+        </label>
+        <label>
+          Description
+          <textarea formControlName="description" rows="3" maxlength="500"> </textarea>
+        </label>
+        <div class="actions">
+          <button type="button" class="secondary" (click)="requestClose()">Cancel</button>
+          <button type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving...' : 'Save course' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+@if (toDelete(); as course) {
+  <app-confirm-dialog
+    title="Delete course?"
+    [message]="'Delete ' + course.name + '? It will also be removed from student enrollments.'"
+    (cancel)="toDelete.set(null)"
+    (confirm)="deleteCourse(course)"
+  />
+}
+@if (confirmClose()) {
+  <app-confirm-dialog
+    title="Discard changes?"
+    message="Your unsaved course changes will be lost."
+    (cancel)="confirmClose.set(false)"
+    (confirm)="closeForm()"
+  />
+}

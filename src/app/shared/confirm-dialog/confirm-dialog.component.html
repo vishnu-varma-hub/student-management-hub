@@ -1,0 +1,21 @@
+<div class="overlay" role="presentation" (click)="cancel.emit()">
+  <section
+    class="dialog"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirm-title"
+    aria-describedby="confirm-description"
+    (click)="$event.stopPropagation()"
+  >
+    <h2 id="confirm-title">
+      {{ title() }}
+    </h2>
+    <p id="confirm-description">
+      {{ message() }}
+    </p>
+    <div class="actions">
+      <button type="button" class="secondary" (click)="cancel.emit()">Cancel</button>
+      <button type="button" class="danger" (click)="confirm.emit()">Confirm</button>
+    </div>
+  </section>
+</div>

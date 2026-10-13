@@ -1,0 +1,37 @@
+<header class="topbar">
+  <div class="container brand">
+    🎓
+    <span> Student Management </span>
+  </div>
+</header>
+<main class="container">
+  <div class="intro">
+    <div>
+      <h1>Academic dashboard</h1>
+      <p>Manage students, courses, and enrollments in one place.</p>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Main navigation">
+    <a routerLink="/students" routerLinkActive="active" (click)="navigate($event, '/students')">
+      Students
+    </a>
+    <a routerLink="/courses" routerLinkActive="active" (click)="navigate($event, '/courses')">
+      Courses
+    </a>
+  </nav>
+  @if (notices.message(); as message) {
+    <div class="alert" role="alert">
+      {{ message }}
+      <button type="button" (click)="notices.clear()" aria-label="Dismiss">×</button>
+    </div>
+  }
+  <router-outlet />
+  @if (pendingRoute()) {
+    <app-confirm-dialog
+      title="Discard unsaved changes?"
+      message="Your current form has changes that have not been saved."
+      (cancel)="pendingRoute.set(null)"
+      (confirm)="discardAndNavigate()"
+    />
+  }
+</main>
